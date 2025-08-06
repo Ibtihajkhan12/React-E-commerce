@@ -1,54 +1,110 @@
-import React from "react";
+import React, { useState } from "react";
 import { Footer, Navbar } from "../components";
+
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [showToast, setShowToast] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // You can send this data to backend or email here
+    console.log("Submitted Data:", formData);
+
+    // Show toast
+    setShowToast(true);
+
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+
+    // Clear form
+    setFormData({
+      name: "",
+      email: "",
+      message: "",
+    });
+  };
+
   return (
     <>
       <Navbar />
-      <div className="container my-3 py-3">
-        <h1 className="text-center">Contact Us</h1>
+      <div className="container my-5 py-3">
+        <h1 className="text-center mb-4">Contact Us</h1>
         <hr />
-        <div class="row my-4 h-100">
-          <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
-            <form>
-              <div class="form my-3">
-                <label for="Name">Name</label>
+        <div className="row justify-content-center">
+          <div className="col-md-6 col-lg-5">
+            <form onSubmit={handleSubmit}>
+              <div className="form-group mb-3">
+                <label htmlFor="name">Name</label>
                 <input
-                  type="email"
-                  class="form-control"
-                  id="Name"
+                  type="text"
+                  className="form-control"
+                  id="name"
+                  name="name"
                   placeholder="Enter your name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                 />
               </div>
-              <div class="form my-3">
-                <label for="Email">Email</label>
+              <div className="form-group mb-3">
+                <label htmlFor="email">Email</label>
                 <input
                   type="email"
-                  class="form-control"
-                  id="Email"
+                  className="form-control"
+                  id="email"
+                  name="email"
                   placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                 />
               </div>
-              <div class="form  my-3">
-                <label for="Password">Message</label>
+              <div className="form-group mb-4">
+                <label htmlFor="message">Message</label>
                 <textarea
                   rows={5}
-                  class="form-control"
-                  id="Password"
+                  className="form-control"
+                  id="message"
+                  name="message"
                   placeholder="Enter your message"
-                />
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                ></textarea>
               </div>
               <div className="text-center">
-                <button
-                  class="my-2 px-4 mx-auto btn btn-dark"
-                  type="submit"
-                  disabled
-                >
+                <button className="btn btn-dark px-4" type="submit">
                   Send
                 </button>
               </div>
             </form>
           </div>
         </div>
+
+        {/* Toast/Alert */}
+        {showToast && (
+          <div
+            className="alert alert-success text-center mt-4 w-50 mx-auto"
+            role="alert"
+          >
+            ✅ Message sent successfully!
+          </div>
+        )}
       </div>
       <Footer />
     </>

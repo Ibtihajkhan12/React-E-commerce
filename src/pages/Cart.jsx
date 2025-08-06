@@ -3,169 +3,129 @@ import { Footer, Navbar } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import { addCart, delCart } from "../redux/action";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaPlus, FaMinus, FaShoppingCart } from "react-icons/fa";
 
 const Cart = () => {
   const state = useSelector((state) => state.handleCart);
   const dispatch = useDispatch();
 
-  const EmptyCart = () => {
-    return (
-      <div className="container">
-        <div className="row">
-          <div className="col-md-12 py-5 bg-light text-center">
-            <h4 className="p-3 display-5">Your Cart is Empty</h4>
-            <Link to="/" className="btn  btn-outline-dark mx-4">
-              <i className="fa fa-arrow-left"></i> Continue Shopping
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const addItem = (product) => dispatch(addCart(product));
+  const removeItem = (product) => dispatch(delCart(product));
 
-  const addItem = (product) => {
-    dispatch(addCart(product));
-  };
-  const removeItem = (product) => {
-    dispatch(delCart(product));
-  };
+  const subtotal = state.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const totalItems = state.reduce((acc, item) => acc + item.qty, 0);
+  const shipping = 30;
 
-  const ShowCart = () => {
-    let subtotal = 0;
-    let shipping = 30.0;
-    let totalItems = 0;
-    state.map((item) => {
-      return (subtotal += item.price * item.qty);
-    });
+  const EmptyCart = () => (
+    <motion.div
+      className="text-center py-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <FaShoppingCart size={80} className="text-muted mb-4" />
+      <h4>Your Cart is Empty</h4>
+      <Link to="/" className="btn btn-outline-dark mt-3">
+        <i className="fa fa-arrow-left me-2"></i> Continue Shopping
+      </Link>
+    </motion.div>
+  );
 
-    state.map((item) => {
-      return (totalItems += item.qty);
-    });
-    return (
-      <>
-        <section className="h-100 gradient-custom">
-          <div className="container py-5">
-            <div className="row d-flex justify-content-center my-4">
-              <div className="col-md-8">
-                <div className="card mb-4">
-                  <div className="card-header py-3">
-                    <h5 className="mb-0">Item List</h5>
-                  </div>
-                  <div className="card-body">
-                    {state.map((item) => {
-                      return (
-                        <div key={item.id}>
-                          <div className="row d-flex align-items-center">
-                            <div className="col-lg-3 col-md-12">
-                              <div
-                                className="bg-image rounded"
-                                data-mdb-ripple-color="light"
-                              >
-                                <img
-                                  src={item.image}
-                                  // className="w-100"
-                                  alt={item.title}
-                                  width={100}
-                                  height={75}
-                                />
-                              </div>
-                            </div>
-
-                            <div className="col-lg-5 col-md-6">
-                              <p>
-                                <strong>{item.title}</strong>
-                              </p>
-                              {/* <p>Color: blue</p>
-                              <p>Size: M</p> */}
-                            </div>
-
-                            <div className="col-lg-4 col-md-6">
-                              <div
-                                className="d-flex mb-4"
-                                style={{ maxWidth: "300px" }}
-                              >
-                                <button
-                                  className="btn px-3"
-                                  onClick={() => {
-                                    removeItem(item);
-                                  }}
-                                >
-                                  <i className="fas fa-minus"></i>
-                                </button>
-
-                                <p className="mx-5">{item.qty}</p>
-
-                                <button
-                                  className="btn px-3"
-                                  onClick={() => {
-                                    addItem(item);
-                                  }}
-                                >
-                                  <i className="fas fa-plus"></i>
-                                </button>
-                              </div>
-
-                              <p className="text-start text-md-center">
-                                <strong>
-                                  <span className="text-muted">{item.qty}</span>{" "}
-                                  x ${item.price}
-                                </strong>
-                              </p>
-                            </div>
-                          </div>
-
-                          <hr className="my-4" />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+  const ShowCart = () => (
+    <motion.section
+      className="h-100"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="container py-4">
+        <div className="row d-flex justify-content-center">
+          <div className="col-md-8">
+            <div className="card mb-4 shadow-sm">
+              <div className="card-header bg-dark text-white">
+                <h5 className="mb-0">Your Cart</h5>
               </div>
-              <div className="col-md-4">
-                <div className="card mb-4">
-                  <div className="card-header py-3 bg-light">
-                    <h5 className="mb-0">Order Summary</h5>
+              <div className="card-body">
+                {state.map((item) => (
+                  <div key={item.id}>
+                    <div className="row align-items-center mb-3">
+                      <div className="col-3">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="img-fluid rounded"
+                        />
+                      </div>
+                      <div className="col-5">
+                        <h6>{item.title}</h6>
+                        <p className="text-muted mb-1">
+                          ${item.price} × {item.qty}
+                        </p>
+                      </div>
+                      <div className="col-4 d-flex align-items-center">
+                        <button
+                          className="btn btn-outline-secondary me-2"
+                          onClick={() => removeItem(item)}
+                        >
+                          <FaMinus />
+                        </button>
+                        <span>{item.qty}</span>
+                        <button
+                          className="btn btn-outline-secondary ms-2"
+                          onClick={() => addItem(item)}
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+                    </div>
+                    <hr />
                   </div>
-                  <div className="card-body">
-                    <ul className="list-group list-group-flush">
-                      <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                        Products ({totalItems})<span>${Math.round(subtotal)}</span>
-                      </li>
-                      <li className="list-group-item d-flex justify-content-between align-items-center px-0">
-                        Shipping
-                        <span>${shipping}</span>
-                      </li>
-                      <li className="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                        <div>
-                          <strong>Total amount</strong>
-                        </div>
-                        <span>
-                          <strong>${Math.round(subtotal + shipping)}</strong>
-                        </span>
-                      </li>
-                    </ul>
-
-                    <Link
-                      to="/checkout"
-                      className="btn btn-dark btn-lg btn-block"
-                    >
-                      Go to checkout
-                    </Link>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
-        </section>
-      </>
-    );
-  };
+
+          <div className="col-md-4">
+            <motion.div
+              className="card shadow-sm"
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="card-header bg-light">
+                <h5 className="mb-0">Summary</h5>
+              </div>
+              <div className="card-body">
+                <ul className="list-group list-group-flush mb-3">
+                  <li className="list-group-item d-flex justify-content-between">
+                    Items ({totalItems})
+                    <span>${subtotal.toFixed(2)}</span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between">
+                    Shipping
+                    <span>${shipping.toFixed(2)}</span>
+                  </li>
+                  <li className="list-group-item d-flex justify-content-between fw-bold">
+                    Total
+                    <span>${(subtotal + shipping).toFixed(2)}</span>
+                  </li>
+                </ul>
+                <Link to="/checkout" className="btn btn-dark w-100">
+                  Proceed to Checkout
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </motion.section>
+  );
 
   return (
     <>
       <Navbar />
-      <div className="container my-3 py-3">
-        <h1 className="text-center">Cart</h1>
+      <div className="container my-4">
+        <h2 className="text-center">Shopping Cart</h2>
         <hr />
         {state.length > 0 ? <ShowCart /> : <EmptyCart />}
       </div>
